@@ -14,6 +14,7 @@ let currentCamera;
 let scene, renderer, orbit;
 const boxes = [];
 let miniMap = null;
+let cubeMesh = null;
 
 init();
 // render();
@@ -88,7 +89,7 @@ function init() {
   orbit.update();
   // orbit.addEventListener("change", render);
 
-  const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
   cubeMesh.position.z = 200;
   cubeMesh.rotateX(45 * Math.PI / 180);
   // Добавляем атрибут interactive "true" элементам, которые хотим передвигать
@@ -162,10 +163,15 @@ function render() {
   miniMap.render();
 }
 
+let x = 0;
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, currentCamera);
   render();
+
+  // x++;
+  cubeMesh.position.setX(x);
 }
 
 animate();
