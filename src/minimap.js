@@ -23,7 +23,7 @@ export default class Minimap {
     // this.renderer.setRenderTarget(null);
 
     console.log(this.scene);
-
+ 
     this.enabled = true;
   }
   setEnabled(enabled) {
