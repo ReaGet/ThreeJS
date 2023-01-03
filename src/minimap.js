@@ -9,7 +9,7 @@ export default class Minimap {
     this.mainCamera = options.camera;
     this.camera = this.createCamera();
     this.zoom = options.zoom || 2;
-    this.position =  { x: 0, y: 0, };
+    this.position =  new THREE.Vector3();
 
     this.miniMap = this.createMap();
  
@@ -30,7 +30,7 @@ export default class Minimap {
     return camera;
   }
   calcAspect() {
-    return window.innerWidth / window.innerHeight;
+    return this.width / this.height;
   }
   createMap() {
     const miniMap = document.createElement("div");
@@ -50,28 +50,26 @@ export default class Minimap {
     return miniMap;
   }
   update() {
-    const vector = this.mainCamera.position.clone();
-    const widthHalf = 0.5 * window.innerWidth;
-    const heightHalf =  0.5 * window.innerHeight;
-
-    this.mainCamera.updateMatrixWorld();
+    const scaleX = this.width / window.innerWidth;
+    const scaleY = this.height / window.innerHeight;
+    const vector = new THREE.Vector3();
     vector.setFromMatrixPosition(this.mainCamera.matrixWorld);
+    const widthHalf = (window.innerWidth / 2);
+    const heightHalf = (window.innerHeight / 2);
     vector.project(this.camera);
+    vector.x = -( vector.x * widthHalf ) + widthHalf;
+    vector.y = ( vector.y * heightHalf ) + heightHalf;
+    console.log(vector);
 
-    vector.x = ( vector.x * widthHalf ) + widthHalf;
-    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+    // return { x: ( pos.x + 1 ) * jqdiv.width() / 2 + jqdiv.offset().left,
+    //      y: ( - pos.y + 1) * jqdiv.height() / 2 + jqdiv.offset().top };
 
     // vector.x *= (this.width / window.innerWidth);
     // vector.y *= (this.height / window.innerHeight);
     
-    this.position.x = vector.x / window.innerWidth * this.width;
-    this.position.y = vector.y / window.innerWidth * this.width;
-
-    // console.log(this.position);
-    
     this.miniMap.style.backgroundPosition = `
-      ${this.position.x}px
-      ${this.position.y}px
+      ${vector.x * scaleX}px
+      ${vector.y * scaleY}px
     `;
   }
   calcY() {
