@@ -126,21 +126,33 @@ function init() {
 
   window.addEventListener("resize", onWindowResize);
   }
+  
+	renderer.setClearColor( 0x000000, 1 );
+	renderer.autoClear = false;
+
+  scene.add(currentCamera);
 
   miniMap = new Minimap({
     scene: scene,
     camera: currentCamera,
     renderer: renderer,
     size: {
-      width: 300,
-      height: 200,
+      width: 240,
+      height: 160,
     },
   });
   
-  scene.add(currentCamera);
-
-  miniMap.setEnabled(true);  
 }
+
+const keyPressed = {};
+
+document.addEventListener("mousedown", (event) => {
+
+});
+
+document.addEventListener("mouseup", (event) => {
+
+});
 
 function onWindowResize() {
 
@@ -152,14 +164,17 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   render();
+}
 
+function update() {
+  orbit.update();
+  miniMap.update();
 }
 
 function render() {  
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+  renderer.clear();
   renderer.render(scene, currentCamera);
-  orbit.update();
-  miniMap.update();
   miniMap.render();
 }
 
@@ -167,7 +182,7 @@ let x = 0;
 
 function animate() {
   requestAnimationFrame(animate);
-  renderer.render(scene, currentCamera);
+  update();
   render();
 
   // x++;
