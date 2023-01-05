@@ -8,14 +8,37 @@ export default class Minimap {
     this.height = options.size.height || 160;
     this.scene = options.scene;
     this.mainCamera = options.camera;
-    this.camera = this.createCamera();
     this.zoom = options.zoom || 2;
     this.position =  new THREE.Vector3();
     this.rotation = new THREE.Vector3();
-
+    
     this.miniMap = this.createMap();
+    this.camera = this.createCamera();
+    // this.miniMap.scene = new THREE.Scene();
     this.angle = 0;
- 
+  }
+  setScene() {
+    const scene = this.scene.clone();
+    scene.background = new THREE.Color( 0x7e6955 );
+    const material = new THREE.MeshStandardMaterial( { wireframe: true } );
+    // console.log(scene.children);
+    // scene.children.forEach((object) => {
+    //   // if (object.isGroup =)
+    //   // item.material = ;
+    // });
+    this.changeMaterial(scene, material);
+
+    return scene;
+  }
+  changeMaterial(object, material) {
+    if (object.children && object.children.length === 0) {
+      object.material = material;
+      return object;
+    } else {
+      object.children.forEach((child) => {
+        child = this.changeMaterial(child, material);
+      });
+    }
   }
   setEnabled(enabled) {
     this.enabled = enabled;
@@ -29,15 +52,16 @@ export default class Minimap {
       window.innerHeight / -2,	// Bottom
       -5000,            			// Near 
       10000 );           			// Far 
+    mapCamera.zoom = 1;
     mapCamera.up = new THREE.Vector3(0,0,-1);
     mapCamera.lookAt( new THREE.Vector3(0,-1,0) );
     mapCamera.name = "cameraTop";
     
-    this.scene.add(mapCamera);
+    mapCamera.aspect = window.innerWidth / window.innerHeight;
+    mapCamera.updateProjectionMatrix();
+    
+    this.miniMap.scene.add(mapCamera);
     return mapCamera;
-  }
-  calcAspect() {
-    return this.width / this.height;
   }
   createMap() {
     const miniMap = document.createElement("div");
@@ -51,9 +75,10 @@ export default class Minimap {
     miniMap.style.border = "2px solid #fff";
     miniMap.style.overflow = "hidden";
 
+    const arrowSize = this.width / 12;
     arrow.style.position = "absolute";
-    arrow.style.width = "20px";
-    arrow.style.height = "20px";
+    arrow.style.width = `${arrowSize}px`;
+    arrow.style.height = `${arrowSize}px`;
     arrow.style.backgroundImage = `url(../public/img/arrow2.svg)`;
     arrow.style.backgroundRepeat = "no-repeat";
     arrow.style.backgroundSize = "contain";
@@ -64,6 +89,7 @@ export default class Minimap {
     return {
       container: miniMap,
       arrow: arrow,
+      scene: this.setScene(),
     };
   }
   getRotation() {
@@ -101,7 +127,10 @@ export default class Minimap {
     if (!this.enabled) {
       return;
     }
-    this.renderer.setViewport( 10, 10, this.width, this.height );
-    this.renderer.render(this.scene, this.camera );
+    this.renderer.setViewport(10, 10, this.width, this.height);
+    this.renderer.setScissor(10, 10, this.width, this.height);
+    this.renderer.setScissorTest(true);
+    // this.renderer.setViewport( 10, 10, this.width, this.height );
+    this.renderer.render(this.miniMap.scene, this.camera );
   }
 }

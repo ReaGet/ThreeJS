@@ -32,7 +32,8 @@ function init() {
   currentCamera.name = "MainCam";
 
   scene = new THREE.Scene();
-  scene.add(new THREE.GridHelper(1000, 10, 0x888888, 0x444444));
+  scene.background = new THREE.Color( 0xcccccc );
+  // scene.add(new THREE.GridHelper(1000, 10, 0x888888, 0x444444));
 
 
   const light = new THREE.DirectionalLight(0xffffff, 2);
@@ -78,6 +79,15 @@ function init() {
     car.position.z = -320;
 
     scene.add(car);
+    miniMap = new Minimap({
+      scene: scene,
+      camera: currentCamera,
+      renderer: renderer,
+      size: {
+        width: 360,
+        height: 240,
+      },
+    });
     // render();
   }, function (xhr) {
   }, function (error) {
@@ -114,15 +124,15 @@ function init() {
   cubeMesh.userData.scale = Object.assign({}, cubeMesh.scale);
   scene.add(sphereMesh);
 
-  const planeGeometry = new THREE.PlaneGeometry(2000, 2000, 8, 8);
-  const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xb5b5b5, side: THREE.DoubleSide });
-  planeMaterial.polygonOffset = true;
-  planeMaterial.polygonOffsetUnits = 1;
-  planeMaterial.polygonOffsetFactor = 1;
-  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.rotateX( - Math.PI / 2);
-  plane.position.setY(-100);
-  scene.add(plane);
+  // const planeGeometry = new THREE.PlaneGeometry(2000, 2000, 8, 8);
+  // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xb5b5b5, side: THREE.DoubleSide });
+  // planeMaterial.polygonOffset = true;
+  // planeMaterial.polygonOffsetUnits = 1;
+  // planeMaterial.polygonOffsetFactor = 1;
+  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  // plane.rotateX( - Math.PI / 2);
+  // plane.position.setY(-100);
+  // scene.add(plane);
 
   window.addEventListener("resize", onWindowResize);
   }
@@ -140,20 +150,8 @@ function init() {
 	renderer.autoClear = false;
 
   scene.add(currentCamera);
-
-  miniMap = new Minimap({
-    scene: scene,
-    camera: currentCamera,
-    renderer: renderer,
-    size: {
-      width: 240,
-      height: 160,
-    },
-  });
   
 }
-
-const keyPressed = {};
 
 document.addEventListener("mousedown", (event) => {
 
@@ -175,21 +173,16 @@ function onWindowResize() {
   render();
 }
 
-let x = 0;
-
 function update() {
-  // orbit.update();
-  miniMap.update();
-  
-  // x++;
-  cubeMesh.position.setX(x);
+  miniMap?.update();
 }
 
 function render() {  
   renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+  renderer.setScissorTest(false);
   renderer.clear();
   renderer.render(scene, currentCamera);
-  miniMap.render();
+  miniMap?.render();
   const delta = clock.getDelta();
   
   flyControls.update( delta );
