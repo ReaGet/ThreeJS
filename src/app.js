@@ -6,15 +6,16 @@ import {
 
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { createBox } from "./utils.js";
+import { FlyControls } from "three/addons/FlyControls.js";
 
 import Minimap from "./minimap.js";
 
 let currentCamera;
 let scene, renderer, orbit;
-const boxes = [];
 let miniMap = null;
 let cubeMesh = null;
+let flyControls = null;
+let clock = null;
 
 init();
 // render();
@@ -26,8 +27,8 @@ function init() {
 
   currentCamera = new THREE.PerspectiveCamera(50, aspect, 0.01, 3000);
 
-  currentCamera.position.set(1000, 500, 1000);
-  currentCamera.lookAt(0, 200, 0);
+  currentCamera.position.set(500, 200, 1000);
+  currentCamera.lookAt(500, 200, 1000);
   currentCamera.name = "MainCam";
 
   scene = new THREE.Scene();
@@ -75,7 +76,6 @@ function init() {
     car.position.x = -290;
     car.position.y = 0;
     car.position.z = -320;
-    boxes.push(createBox(car));
 
     scene.add(car);
     // render();
@@ -84,9 +84,9 @@ function init() {
       console.log("error")
   })
 
-  orbit = new OrbitControls(currentCamera, renderer.domElement);
-  orbit.enableDamping = true;
-  orbit.update();
+  // orbit = new OrbitControls(currentCamera, renderer.domElement);
+  // orbit.enableDamping = true;
+  // orbit.update();
   // orbit.addEventListener("change", render);
 
   cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
@@ -126,6 +126,15 @@ function init() {
 
   window.addEventListener("resize", onWindowResize);
   }
+
+  clock = new THREE.Clock();
+  flyControls = new FlyControls( currentCamera, renderer.domElement );
+
+  flyControls.movementSpeed = 1000;
+  flyControls.domElement = renderer.domElement;
+  flyControls.rollSpeed = Math.PI / 24;
+  flyControls.autoForward = false;
+  flyControls.dragToLook = true;
   
 	renderer.setClearColor( 0x000000, 1 );
 	renderer.autoClear = false;
@@ -166,9 +175,14 @@ function onWindowResize() {
   render();
 }
 
+let x = 0;
+
 function update() {
-  orbit.update();
+  // orbit.update();
   miniMap.update();
+  
+  // x++;
+  cubeMesh.position.setX(x);
 }
 
 function render() {  
@@ -176,17 +190,15 @@ function render() {
   renderer.clear();
   renderer.render(scene, currentCamera);
   miniMap.render();
+  const delta = clock.getDelta();
+  
+  flyControls.update( delta );
 }
-
-let x = 0;
 
 function animate() {
   requestAnimationFrame(animate);
   update();
   render();
-
-  // x++;
-  cubeMesh.position.setX(x);
 }
 
 animate();

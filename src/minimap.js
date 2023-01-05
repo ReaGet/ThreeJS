@@ -80,25 +80,21 @@ export default class Minimap {
       y: this.height / window.innerHeight,
     };
 
-    this.mainCamera.updateMatrixWorld();
     this.position.setFromMatrixPosition(this.mainCamera.matrixWorld);
     this.position.project(this.camera);
 
     this.position.x = Math.round( (   this.position.x + 1 ) * window.innerWidth  / 2 );
     this.position.y = Math.round( ( - this.position.y + 1 ) * window.innerHeight / 2 );
 
-    const angle = new THREE.Vector2(this.position.x, this.position.y).angle() * 180 / Math.PI;
-    // console.log(angle);
-    // translate(10px, 13px) rotate(-97deg)
-    // translate(120px, 80px) rotate(322deg)
-    // this.angle++;
+    const vector = this.mainCamera.getWorldDirection(new THREE.Vector3(0, 0, 0));
+    const theta = Math.atan2(vector.x, -vector.z);
 
     this.miniMap.arrow.style.transform = `
       translate(
         ${this.position.x * scale.x}px,
         ${this.position.y * scale.y}px
       )
-      rotate(${angle}deg)
+      rotate(${theta*180/Math.PI}deg)
     `;
   }
   render() {
